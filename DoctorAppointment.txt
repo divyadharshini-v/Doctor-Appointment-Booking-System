@@ -1,0 +1,238 @@
+import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+// Base class for Person (Doctor or Patient)
+class Person {
+    protected String name;
+    protected String contact;
+
+    public Person(String name, String contact) {
+        this.name = name;
+        this.contact = contact;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "Name: " + name + ", Contact: " + contact;
+    }
+}
+
+// Doctor class inherits from Person
+class Doctor extends Person {
+    private String specialization;
+
+    public Doctor(String name, String contact, String specialization) {
+        super(name, contact);
+        this.specialization = specialization;
+    }
+
+    public String getSpecialization() {
+        return specialization;
+    }
+
+    @Override
+    public String toString() {
+        return "Doctor - " + super.toString() + ", Specialization: " + specialization;
+    }
+}
+
+// Patient class inherits from Person
+class Patient extends Person {
+    private int age;
+
+    public Patient(String name, String contact, int age) {
+        super(name, contact);
+        this.age = age;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    @Override
+    public String toString() {
+        return "Patient - " + super.toString() + ", Age: " + age;
+    }
+}
+
+// Appointment class to store appointment details
+class Appointment {
+    private Doctor doctor;
+    private Patient patient;
+    private String timeSlot;
+
+    public Appointment(Doctor doctor, Patient patient, String timeSlot) {
+        this.doctor = doctor;
+        this.patient = patient;
+        this.timeSlot = timeSlot;
+    }
+
+    @Override
+    public String toString() {
+        return doctor + ", " + patient + ", Appointment Time: " + timeSlot;
+    }
+
+    public Patient getPatient() {
+        return patient;
+    }
+}
+
+// Main appointment system class
+class AppointmentSystem {
+    private ArrayList<Doctor> doctors = new ArrayList<>();
+    private ArrayList<Patient> patients = new ArrayList<>();
+    private ArrayList<Appointment> appointments = new ArrayList<>();
+
+    public AppointmentSystem() {
+        // Predefined doctors
+        doctors.add(new Doctor("Priya", "123-456-7890", "Cardiologist"));
+        doctors.add(new Doctor("Ramya", "234-567-8901", "Dermatologist"));
+        doctors.add(new Doctor("Arun", "345-678-9012", "Neurologist"));
+    }
+
+    public void displayDoctors() {
+        System.out.println("Available Doctors:");
+        for (Doctor doctor : doctors) {
+            System.out.println(doctor);
+        }
+    }
+
+    public void registerPatient(String name, String contact, int age) {
+        Patient patient = new Patient(name, contact, age);
+        patients.add(patient);
+        System.out.println("Patient registered successfully!");
+    }
+
+    public Patient findPatientByName(String name) {
+        for (Patient patient : patients) {
+            if (patient.getName().equalsIgnoreCase(name)) {
+                return patient;
+            }
+        }
+        return null;
+    }
+
+    public Doctor findDoctorByName(String name) {
+        for (Doctor doctor : doctors) {
+            if (doctor.getName().equalsIgnoreCase(name)) {
+                return doctor;
+            }
+        }
+        return null;
+    }
+
+    public void bookAppointment(String doctorName, String patientName, String timeSlot) {
+        Doctor doctor = findDoctorByName(doctorName);
+        Patient patient = findPatientByName(patientName);
+
+        if (doctor == null) {
+            System.out.println("Doctor not found. Please choose a valid doctor.");
+            return;
+        }
+
+        if (patient == null) {
+            System.out.println("Patient not found. Please register the patient first.");
+            return;
+        }
+
+        Appointment appointment = new Appointment(doctor, patient, timeSlot);
+        appointments.add(appointment);
+        System.out.println("Appointment booked successfully!");
+    }
+
+    public void viewAppointments() {
+        if (appointments.isEmpty()) {
+            System.out.println("No appointments available.");
+        } else {
+            System.out.println("Appointments:");
+            for (Appointment appointment : appointments) {
+                System.out.println(appointment);
+            }
+        }
+    }
+
+    public void cancelAppointment(String patientName) {
+        boolean found = false;
+        for (Appointment appointment : appointments) {
+            if (appointment.getPatient().getName().equalsIgnoreCase(patientName)) {
+                appointments.remove(appointment);
+                System.out.println("Appointment canceled for patient: " + patientName);
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            System.out.println("No appointment found for patient: " + patientName);
+        }
+    }
+}
+
+public class DoctorAppointment4 {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        AppointmentSystem system = new AppointmentSystem();
+        boolean running = true;
+
+        while (running) {
+            System.out.println("\nDoctor Appointment Booking System");
+            System.out.println("1. Register Patient");
+            System.out.println("2. Book Appointment");
+            System.out.println("3. View Appointments");
+            System.out.println("4. Cancel Appointment");
+            System.out.println("5. Exit");
+            System.out.print("Choose an option: ");
+            
+            try {
+                int choice = scanner.nextInt();
+                scanner.nextLine(); // Consume newline
+
+                switch (choice) {
+                    case 1:
+                        System.out.print("Enter Patient's Name: ");
+                        String name = scanner.nextLine();
+                        System.out.print("Enter Patient's Age: ");
+                        int age = scanner.nextInt();
+                        scanner.nextLine(); // Consume newline
+                        System.out.print("Enter Patient's Contact Number: ");
+                        String contact = scanner.nextLine();
+                        system.registerPatient(name, contact, age);
+                        break;
+                    case 2:
+                        system.displayDoctors();
+                        System.out.print("Enter Doctor's Name: ");
+                        String doctorName = scanner.nextLine();
+                        System.out.print("Enter Patient's Name: ");
+                        String patientName = scanner.nextLine();
+                        System.out.print("Enter Appointment Time: ");
+                        String appointmentTime = scanner.nextLine();
+                        system.bookAppointment(doctorName, patientName, appointmentTime);
+                        break;
+                    case 3:
+                        system.viewAppointments();
+                        break;
+                    case 4:
+                        System.out.print("Enter Patient's Name to Cancel: ");
+                        String cancelName = scanner.nextLine();
+                        system.cancelAppointment(cancelName);
+                        break;
+                    case 5:
+                        running = false;
+                        System.out.println("Exiting the system. Goodbye!");
+                        break;
+                    default:
+                        System.out.println("Invalid option. Please try again.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a number.");
+                scanner.next(); // Consume invalid input
+            }
+        }
+
+        scanner.close();
+    }
+}
